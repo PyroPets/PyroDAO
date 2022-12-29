@@ -88,6 +88,8 @@ contract ProvidedGovernorFactory is IGovernorFactory, Ownable {
         );
         providers[count] = msg.sender;
         providedCollateral[count] = collateral;
+        governorIds[governors[count]] = count;
+        isGovernor[governors[count]] = true;
         enroll(count);
         count++;
     }
