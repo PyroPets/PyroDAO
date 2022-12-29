@@ -58,7 +58,6 @@ contract ProvidedGovernor is IPyroGovernor, Ownable {
 
     function unenroll(bool force) public override onlyOwner {
         governance.unenroll(force);
-        withdraw();
     }
 
     function ping() public onlyOwner {
@@ -100,6 +99,13 @@ contract ProvidedGovernor is IPyroGovernor, Ownable {
     }
 
     function withdraw() public override onlyOwner {
-        revert("ProvidedGovernor: Withdraw is disabled for this contract");
+        require(
+            payable(address(this)).balance > 0,
+            "ControlledGovernor: No funds to withdraw"
+        );
+        (bool success, ) = payable(owner()).call{
+            value: payable(address(this)).balance
+        }("");
+        require(success, "ControlledGovernor: Withdraw failed");
     }
 }

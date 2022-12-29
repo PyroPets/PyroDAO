@@ -7,12 +7,14 @@ import "../DGP.sol";
 import "../Governance.sol";
 import "./IGovernorFactory.sol";
 import "./ControlledGovernor.sol";
+import "../../PyroVault.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract ControlledGovernorFactory is IGovernorFactory, Ownable {
     DGP public immutable dgp;
     Governance public immutable governance;
     Budget public immutable budget;
+    PyroVault public immutable vault;
 
     mapping(uint8 => address) public governors;
 
@@ -21,16 +23,22 @@ contract ControlledGovernorFactory is IGovernorFactory, Ownable {
     constructor(
         address dgpAddress,
         address governanceAddress,
-        address budgetAddress
+        address budgetAddress,
+        address vaultAddress
     ) {
         dgp = DGP(dgpAddress);
         governance = Governance(governanceAddress);
         budget = Budget(budgetAddress);
+        vault = PyroVault(payable(vaultAddress));
     }
 
-    fallback() external payable {}
+    fallback() external payable {
+        payable(address(vault)).call{value: msg.value}("");
+    }
 
-    receive() external payable {}
+    receive() external payable {
+        payable(address(vault)).call{value: msg.value}("");
+    }
 
     function executeTransaction(
         address payable _to,

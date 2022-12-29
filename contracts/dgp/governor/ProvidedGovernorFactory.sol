@@ -7,15 +7,20 @@ import "../DGP.sol";
 import "../Governance.sol";
 import "./IGovernorFactory.sol";
 import "./ProvidedGovernor.sol";
+import "../../PyroVault.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract ProvidedGovernorFactory is IGovernorFactory, Ownable {
     DGP public immutable dgp;
     Governance public immutable governance;
     Budget public immutable budget;
+    PyroVault public immutable vault;
 
     mapping(uint256 => address) public governors;
+    mapping(address => uint256) public governorIds;
+    mapping(address => bool) public isGovernor;
     mapping(uint256 => address) public providers;
+    mapping(uint256 => uint256) public providedCollateral;
 
     uint8 public count;
 
@@ -30,16 +35,34 @@ contract ProvidedGovernorFactory is IGovernorFactory, Ownable {
     constructor(
         address dgpAddress,
         address governanceAddress,
-        address budgetAddress
+        address budgetAddress,
+        address vaultAddress
     ) {
         dgp = DGP(dgpAddress);
         governance = Governance(governanceAddress);
         budget = Budget(budgetAddress);
+        vault = PyroVault(payable(vaultAddress));
     }
 
-    fallback() external payable {}
+    fallback() external payable {
+        if (isGovernor[msg.sender]) {
+            uint256 id = governorIds[msg.sender];
+            uint256 collateral = providedCollateral[id];
+            if (collateral > 0) {
+                payable(address(vault)).call{value: msg.value}("");
+            }
+        }
+    }
 
-    receive() external payable {}
+    receive() external payable {
+        if (isGovernor[msg.sender]) {
+            uint256 id = governorIds[msg.sender];
+            uint256 collateral = providedCollateral[id];
+            if (collateral > 0) {
+                payable(address(vault)).call{value: msg.value}("");
+            }
+        }
+    }
 
     function executeTransaction(
         address payable _to,
@@ -64,6 +87,7 @@ contract ProvidedGovernorFactory is IGovernorFactory, Ownable {
             )
         );
         providers[count] = msg.sender;
+        providedCollateral[count] = collateral;
         enroll(count);
         count++;
     }
@@ -90,9 +114,20 @@ contract ProvidedGovernorFactory is IGovernorFactory, Ownable {
             "ProvidedGovernorFactory: Governor does not exist"
         );
         governors[id] = address(0x0);
+        address provider = providers[id];
         providers[id] = address(0x0);
+        uint256 collateral = providedCollateral[id];
+        providedCollateral[id] = 0;
+
         ProvidedGovernor governor = ProvidedGovernor(payable(governors[id]));
         governor.unenroll(force);
+        governor.withdraw();
+        require(
+            collateral > 0,
+            "ProvidedGovernorFactory: Collateral already withdrawn"
+        );
+        (bool success, ) = payable(provider).call{value: collateral}("");
+        require(success, "ProvidedGovernorFactory: Collateral refund failed");
     }
 
     function ping(uint8 id) public override onlyOwner {
@@ -141,7 +176,7 @@ contract ProvidedGovernorFactory is IGovernorFactory, Ownable {
         require(success, "ProvidedGovernorFactory: Withdraw failed");
     }
 
-    function withdraw(uint8 id) public override onlyProvider(id) {
+    function withdraw(uint8 id) public override onlyOwner {
         require(
             governors[id] != address(0x0),
             "ProvidedGovernorFactory: Governor does not exist"

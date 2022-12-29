@@ -6,7 +6,7 @@ import "./dgp/Budget.sol";
 import "./dgp/DGP.sol";
 import "./dgp/Governance.sol";
 import "./token/PyroDAOToken.sol";
-import "./vault/PyroVaultFactory.sol";
+import "./PyroVault.sol";
 import "./dgp/governor/ControlledGovernorFactory.sol";
 import "./dgp/governor/ProvidedGovernorFactory.sol";
 import "@pyropets/pyropets-contracts/contracts/PyroBase.sol";
@@ -29,7 +29,7 @@ contract PyroDAO is
     Budget public immutable budget;
     ControlledGovernorFactory public controlledGovernorFactory;
     ProvidedGovernorFactory public providedGovernorFactory;
-    PyroVaultFactory public vaultFactory;
+    PyroVault public vault;
 
     constructor(
         address pyroBase,
@@ -50,17 +50,19 @@ contract PyroDAO is
         dgp = DGP(dgpAddress);
         governance = Governance(governanceAddress);
         budget = Budget(budgetAddress);
+        vault = new PyroVault();
         controlledGovernorFactory = new ControlledGovernorFactory(
             dgpAddress,
             governanceAddress,
-            budgetAddress
+            budgetAddress,
+            address(vault)
         );
         providedGovernorFactory = new ProvidedGovernorFactory(
             dgpAddress,
             governanceAddress,
-            budgetAddress
+            budgetAddress,
+            address(vault)
         );
-        vaultFactory = new PyroVaultFactory();
     }
 
     function reclaimVote(uint256 tokenId) public {
