@@ -115,7 +115,6 @@ contract ProvidedGovernorFactory is IGovernorFactory, Ownable {
             governors[id] != address(0x0),
             "ProvidedGovernorFactory: Governor does not exist"
         );
-        governors[id] = address(0x0);
         address provider = providers[id];
         providers[id] = address(0x0);
         uint256 collateral = providedCollateral[id];
