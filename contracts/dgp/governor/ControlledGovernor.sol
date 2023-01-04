@@ -60,7 +60,7 @@ contract ControlledGovernor is IPyroGovernor, Ownable {
         governance.unenroll(force);
     }
 
-    function ping() public onlyOwner {
+    function ping() public override onlyOwner {
         governance.ping();
     }
 
@@ -86,7 +86,7 @@ contract ControlledGovernor is IPyroGovernor, Ownable {
         string memory url,
         uint256 requested,
         uint8 duration
-    ) external payable {
+    ) external payable override {
         uint256 fee = dgp.getBudgetFee()[0];
         require(msg.value == fee, "ControlledGovernor: Invalid fee");
         budget.startProposal{value: fee}(
