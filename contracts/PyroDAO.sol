@@ -9,7 +9,7 @@ import "./token/PyroDAOToken.sol";
 import "./PyroVault.sol";
 import "./dgp/governor/ControlledGovernorFactory.sol";
 import "./dgp/governor/ProvidedGovernorFactory.sol";
-import "@pyropets/pyropets-contracts/contracts/PyroCore.sol";
+import "./pyro/IPyroBase.sol";
 import "@openzeppelin/contracts/governance/Governor.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorSettings.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorCountingSimple.sol";
@@ -23,7 +23,7 @@ contract PyroDAO is
     GovernorVotes,
     GovernorVotesQuorumFraction
 {
-    PyroCore public immutable base;
+    IPyroBase public immutable base;
     DGP public immutable dgp;
     Governance public immutable governance;
     Budget public immutable budget;
@@ -46,7 +46,7 @@ contract PyroDAO is
         GovernorVotes(new PyroDAOToken(pyroBase))
         GovernorVotesQuorumFraction(51)
     {
-        base = PyroCore(pyroBase);
+        base = IPyroBase(pyroBase);
         dgp = DGP(dgpAddress);
         governance = Governance(governanceAddress);
         budget = Budget(budgetAddress);

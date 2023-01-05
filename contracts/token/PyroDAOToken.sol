@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import "@pyropets/pyropets-contracts/contracts/PyroCore.sol";
+import "../pyro/IPyroBase.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
@@ -17,13 +17,13 @@ contract PyroDAOToken is
     EIP712,
     ERC721Votes
 {
-    PyroCore public immutable base;
+    IPyroBase public immutable base;
 
     constructor(address pyroBase)
         ERC721("Pyro DAO Token", "PDAO")
         EIP712("Pyro DAO Token", "1")
     {
-        base = PyroCore(pyroBase);
+        base = IPyroBase(pyroBase);
     }
 
     function _baseURI() internal pure override returns (string memory) {
@@ -51,17 +51,19 @@ contract PyroDAOToken is
     function _beforeTokenTransfer(
         address from,
         address to,
-        uint256 tokenId
+        uint256 tokenId,
+        uint256 batchSize
     ) internal override(ERC721, ERC721Enumerable) {
-        super._beforeTokenTransfer(from, to, tokenId);
+        super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
 
     function _afterTokenTransfer(
         address from,
         address to,
-        uint256 tokenId
+        uint256 tokenId,
+        uint256 batchSize
     ) internal override(ERC721, ERC721Votes) {
-        super._afterTokenTransfer(from, to, tokenId);
+        super._afterTokenTransfer(from, to, tokenId, batchSize);
     }
 
     function supportsInterface(bytes4 interfaceId)
