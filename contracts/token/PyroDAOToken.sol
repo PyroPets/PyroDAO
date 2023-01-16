@@ -6,22 +6,22 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/draft-ERC721Votes.sol";
+import "../utils/cryptography/MIP712.sol";
+import "./MRC721/extensions/MRC721Votes.sol";
 
 contract PyroDAOToken is
     ERC721,
     ERC721Enumerable,
     ERC721Burnable,
     Ownable,
-    EIP712,
-    ERC721Votes
+    MIP712,
+    MRC721Votes
 {
     IPyroBase public immutable base;
 
     constructor(address pyroBase)
         ERC721("Pyro DAO Token", "PDAO")
-        EIP712("Pyro DAO Token", "1")
+        MIP712("Pyro DAO Token", "1")
     {
         base = IPyroBase(pyroBase);
     }
@@ -62,7 +62,7 @@ contract PyroDAOToken is
         address to,
         uint256 tokenId,
         uint256 batchSize
-    ) internal override(ERC721, ERC721Votes) {
+    ) internal override(ERC721, MRC721Votes) {
         super._afterTokenTransfer(from, to, tokenId, batchSize);
     }
 

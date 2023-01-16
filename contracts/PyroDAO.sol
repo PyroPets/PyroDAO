@@ -10,11 +10,11 @@ import "./PyroVault.sol";
 import "./dgp/governor/ControlledGovernorFactory.sol";
 import "./dgp/governor/ProvidedGovernorFactory.sol";
 import "./pyro/IPyroBase.sol";
-import "@openzeppelin/contracts/governance/Governor.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorSettings.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorCountingSimple.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
+import "./governance/Governor.sol";
+import "./governance/extensions/GovernorSettings.sol";
+import "./governance/extensions/GovernorCountingSimple.sol";
+import "./governance/extensions/GovernorVotes.sol";
+import "./governance/extensions/GovernorVotesQuorumFraction.sol";
 
 contract PyroDAO is
     Governor,
